@@ -29,3 +29,5 @@ You can test the endpoints using:
   "date": "2025-12-10"
 }
 
+## Resources
+- [Developing RESTful APIs with Python and Flask](https://auth0.com/blog/developing-restful-apis-with-python-and-flask/)
