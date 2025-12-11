@@ -40,6 +40,32 @@ def add_workout():
 
     return {"message": "Workout added"}, 201
 
+# PUT /workouts
+@app.route('/workouts/<int:id>', methods=["PUT"])
+def update_workout(id):
+    data = request.get_json()
+    type_ = data.get("type")
+    duration = data.get("duration")
+    date = data.get("date")
+
+    if not all([type_, duration, date]):
+        return {"error": "Missing fields"}, 400
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE workouts SET type = ?, duration = ?, date = ? WHERE id = ?",
+        (type_, duration, date, id)
+    )
+    conn.commit()
+    updated = cur.rowcount
+    conn.close()
+
+    if updated == 0:
+        return {"error": f"No workout with id {id} found"}, 404
+
+    return {"message": f"Workout {id} updated"}, 200
+
 # DELETE /workouts/<id>
 @app.route('/workouts/<int:id>', methods=["DELETE"])
 def delete_workout(id):
