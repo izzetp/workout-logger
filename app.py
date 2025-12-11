@@ -1,30 +1,52 @@
 # app.py
 
-from flask import Flask
-from flask import request
+from flask import Flask, request, jsonify
+import sqlite3
 
 app = Flask(__name__)
 
-workouts = []
-next_id = 1
+# Connect to the SQLite database
+def get_db_connection():
+    conn = sqlite3.connect("workouts.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
+# GET /workouts
 @app.route('/workouts', methods=["GET"])
 def get_workout():
-    return {"workouts": workouts}
+    conn = get_db_connection()
+    workouts = conn.execute("SELECT * FROM workouts").fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in workouts])
 
+# POST /workouts
 @app.route('/workouts', methods=["POST"])
 def add_workout():
-    global next_id
     data = request.get_json()
-    data["id"] = next_id
-    workouts.append(data)
-    next_id += 1
-    return {"message": "Workout added", "workout": data}, 201
+    type_ = data.get("type")
+    duration = data.get("duration")
+    date = data.get("date")
 
+    if not all([type_, duration, date]):
+        return {"error": "Missing fields"}, 400
+    
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO workouts (type, duration, date) VALUES (?, ?, ?)",
+        (type_, duration, date)
+    )
+    conn.commit()
+    conn.close()
+
+    return {"message": "Workout added"}, 201
+
+# DELETE /workouts/<id>
 @app.route('/workouts/<int:id>', methods=["DELETE"])
 def delete_workout(id):
-    global workouts
-    workouts = [w for w in workouts if w.get("id") != id]
+    conn = get_db_connection()
+    conn.execute("DELETE FROM workouts WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
     return {"message": "Workout deleted"}, 204
 
 if __name__ == '__main__':
