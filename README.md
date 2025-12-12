@@ -1,7 +1,7 @@
 # Workout Logger API
 A simple RESTful API built with Python and Flask to log and manage workouts.
 
-**Live Demo**: [https://workout-logger-njdc.onrender.com](https://workout-logger-njdc.onrender.com)
+**Live Demo**: [https://workout-logger-njdc.onrender.com](https://workout-logger-njdc.onrender.com/workouts)
 
 ## Features
 - Add, update, delete, view workouts
